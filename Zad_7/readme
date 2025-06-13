@@ -1,0 +1,95 @@
+Natan Wojnowski, Kraków 22.05.2025
+
+Co robi program?
+
+Struktura programu:
+Proces main
+- stworzenie struktury bufora
+- utworzenie pamięci dzielonej
+	- wypisanie jej deskryptora i rozmiaru
+- utworzenie semafora binarnego mutex, semafora empty oraz full
+	- wypisanie ich adresów
+- ustawienie obsługi SIGINT
+	- odłączenie sema i pamdziel od procesów potomych 
+	- zakończenie procesów potomnych
+	- usuniecie sema i pamdziel z głównym
+- ustawienie atexit 
+	- usuwanie semafora i pamieci dzielonej
+- stworzenie dwóch procesów potomnych 
+	1) execlp konsument.c
+	2) execlp producent.c
+- czeka na zakończenie procesów potomnych
+Proces konsument
+- otworzenie semafora
+- otworzenie pamięci dzielonej
+- wypisanie deskrryptora pamdziel oraz adresów sema
+- odwzorowanie pamdziel
+Proces producent
+- otworzenie semafora
+- otworzenie pamięcie dzielonej
+-||-
+-||-
+-||-
+Proces main
+- usunięcie semafora
+- usunięcie pamięci dzielonej
+
+I teraz jeszcze główne działanie producenta:
+1. Pobierz dane z pliku wejściowego
+2. Spróbuj opuścić semafor sem_full (dostępność wolnych miejsc w buforze)
+3. Spróbuj opuścić semafor sem_mutex (dostępność do bufora)
+4. Przepisz dane do segmentu bufora
+5. Podnieś oba semafory
+6. Ziteruj wskaźnik
+Jeśli dostaniesz '/0' wpisz to do segmentu i zakończ pętlę
+
+Oraz działanie konsumenta:
+1. Spróbuj opuścić semafor sem_empty (czy jest cokolwiek do odczytu?)
+2. Spróbuj opuścić semafor sem_mutex (dostępność do bufora)
+3. Odzcytaj dane z segmentu bufora
+4. Podnieś semafory
+5. Przepisz dane do pliku wyjściowego
+6. Ziteruj wskaźnik
+Jeśli dostaniesz '/0', zakończ pętlę
+
+Głównym mechanizmem synchronizującym są semafory. To one odpowiadają za to żeby
+producent nie napisywał jeszcze nieodczytanych segmentów oraz aby konsument nie odczytywał
+już wcześniej odczytanych lub pustych segmentów, ale także o efekt wyścigu pomiędzy dwoma. 
+
+Przy moich liczbach moja pamięć dzielona to pięciu segmentowy bufor, gdzie każdy segment
+posiada 20 bajtów przestrzeni. Finalnie cała pamięć dzielona po utworzeniu wynosi 108 bajtów. 
+Wychodzi tak ze względu na dwie zmienne int w strukturze, które odpowiadają za wskaźniki. 
+One dodają te 8 bajtów, każda po 4. 
+
+RPATH to wbudowana w binarkę lista ścieżek, pokazuje loaderowi dokładnie gdzie szukać:
+pliku lub bilioteki. To jest dokładna mapa mówiąca gdzie szukać. 
+
+Natomiast LD_LIBRARY_PATH to zmienna środowiskowa ustawiana przed uruchomiem.
+Ta zmienna to swojego rodzaju drogowskaz do sprawdzenia czy biblioteki może są w 
+podanym miejscu. 
+
+Różnica pomiędzy nimi jest taka, że RPATH jest na stałe zapisany w pliku wykonalnym.
+Więc jeśli przeniesiemy gdzieś indziej naszą bibliotekę to musimy na nowo prezlinkować binarkę.
+Natomiast LD_LIBRARY_PATH to zmienna środowiskowa. Nie jest zależna od konkretnego
+pliku wykonywawczego, ale drogowskaz, które każdy loader będzie używał.
+
+W przypadku biblioteki dzielonej, program nie zawiera kodu .so na stałe, tak jak w przypadku
+użycia biblioteki statycznej, a jedynie trzyma nagłówki i adresy, gdzie dana funckja się
+znajduje w pamięci. 
+Program pozostaje niewielki, bo wciąga kod biblioteki dopiero w momencie uruchomienia.
+
+Statyczna (nieproszone wyjaśnienie skrótowo): jesteś kurierem, który wkłada wszystkie
+paczki (kod) do samochodu na start.
+
+Dynamiczna: zamiast załadowywać wszystko, masz listę adresów, skąd możesz pobrać paczki w
+locie – mniejszy samochód, niższe koszty, więcej elastyczności.
+
+Kompilator tłumaczy pliki źródłowe na pliki obiektowe, czyli język maszynowy.
+Natomiast linker łączy wszystkie pliki obiektowe i biblioteki razem.
+Jak uruchomić program?
+make run_static - uruchomienie i skompilowanie z biblioteką statyczną
+make run_dynamic_1 - uruchomienie i skompilowanie z biblioteką dzieloną sposobem RPATH
+make run_dynamic_2 - uruchomienie i skompilowanie z bilbioteką dzieloną sposobem LD_LIBRARY_PATH
+make static - kompilacja programów z biblioteką statyczną
+make dynamic_1 - kompilacja programów z biblioteką dynamiczną sposobem RPATH
+make dynamic_2 - kompilacja programów z biblioteką dynamiczną sposobem LD_LIBRARY_PATH

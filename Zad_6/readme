@@ -1,0 +1,38 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 05.04.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Co robi program?
+
+W podpunkcie a) mamy stworzony problem wykluczenia. Program tworzy semafor
+i proces potomny, symulując dzielenia zasobów. Aby działanie było dobrze
+zauważalne zarówno proces macierzysty jak i potomny wchodzą do sekcji
+krytycznej kilkukrotnie poprzez funkcję for(). Dzięki odpowiednim 
+komunikatom widzimy kiedy, jaki proces wchodzi i wychodzi z sekcji
+krytycznej. 
+Program używa semafora binarnego.
+
+W podpunkcie b) mamy główny program, który tworzy semafor binarny, a potem
+tworzy n procesów potomnych (gdzie n jest podawane jako argument 
+uruchomienia programu). Każdy z tych procesów chce dostać się do pliku
+tekstowego numer.txt m razy (gdzie m jest podawane jako argument 
+uruchomienia programu). Liczby m i n to dowolne podane przez użytkownika
+liczby całkowite dodatnie. Za każdym razem kiedy którykolwiek z 
+procesów dostaje się do sekcji krytycznej otwiera i pobiera z pliku
+tekstowego liczbę, inkrementuje ją o 1 i następnie zapisuje z powrotem
+do pliku. To działanie pokazuje problem dzielonych zasobów w praktyce
+oraz dodatkowo sprawdza czy ilość wejść do strefy krytycznej (czyli n*m)
+się zgadza. 
+Program dodatkowo obsługuje sygnał SIGINT. 
+
+Jak uruchomić program?
+
+Aby skompilować: 'make'
+Aby uruchomić podpunkt a: 'make run_a'
+Aby uruchomić podpunkt b: 'make run_b'
+Aby wyczyścić: 'make clean'
+
+===========================================================================

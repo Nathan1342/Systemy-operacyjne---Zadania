@@ -1,0 +1,66 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 27.03.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Co robi program?
+
+PODPUNKT_A - pogram jako argumenty pobiera <numer_sygnału> oraz <tryb_obsługi>.
+Następnie dla podanego przez argument numeru sygnału oraz trybu obsługi 
+określa działanie dla tego konkretnego sygnału (akcja domyślna, ignorowanie 
+lub przechwycenie sygnału). Następnie przechodzi w stan zamrożenia przez
+funkcję pause() i oczekuje na sygnał.
+
+PODPUNKT_B - program tworzy poprzez funkcję fork() proces potomny oraz
+zleca mu wykonanie programu PODPUNKT_A poprzez funkcję execlp().
+Sama funkcja execlp() przyjmuje jako arg[0] ścieżkę do pliku 
+wykonywalnego programu PODPUNKT_A oraz jego nazwę w arg[1].
+W arg[2] oraz arg[3] pojawiają się <numer_sygnału> oraz <tryb_obsługi>
+wspomniane powyżej. Proces potomny ustawia obsługę podanego sygnału, a 
+następnie wchodzi w stań oczekiwania przez funkcję pause().
+Po odpowiednim czasie funkcji sleep() proces macierzysty wysyła funkcją
+kill() ten sam sygnał do procesu potomnego, natomiast tamten odpowiednio
+reaguje.
+
+PODPUNKT_C_1 oraz PODPUNKT_C_2 - program wywołuje proces potomny i zleca
+mu wykonanie programu PODPUNKT_C_2, gdzie ten tworzy trzy procesy potomne.
+Cały program opiera się o poprawne sekwencjonowanie działania sygnałów
+poprzez funkcję sleep(). Bardziej dokładną i zarazem błędoodporną opcją
+byłoby użycie także sygnałów do odpowiedniej kontroli działania sygnałów.
+Chociaż na potrzeby ćwiczenia funkcja sleep jest wystarczająca. 
+
+Całe działanie obu programów można byłoby zapisać na swego rodzaju
+kalendarzu wydarzeń, gdzie proces nr 1 to proces macierzysty programu
+PODPUNKT_C_1 oraz proces nr 2 to procec potomny procesu nr 1.
+
+1. Uruchomienie programu PODPUNKT_C_1
+2. Proces nr 1 tworzy proces nr 2 
+3. Proces nr 1 wchodzi w tryb uśpienia
+4. Proces nr 2 uruchamia program PODPUNKT_C_2
+5. Proces nr 2 ustawia się na lidera grupy
+6. Proces nr 2 ustawia obsługę sygnału
+7. Proces nr 2 tworzy trzy procesy potomne
+8. Proces nr 2 wchodzi w tryb oczekiwania przez wait()
+9. Procesy potomne uruchamiają i wykonują program PODPUNKT_A
+10. Proces nr 1 wychodzi z uśpienia i wysyła kill()
+11. Cała grupa procesów z liderem proces nr 2 odbiera sygnał
+12. Proces nr 2 ignoruje sygnał, procesy potomne zakończają się
+13. Proces nr 2 określa zakończenie procesów potomnych
+14. Proces nr 2 zakończa się
+15. Proces nr 1 określa zakończenie procesu nr 2
+16. Proces nr 1 zakończa się
+
+
+Jak uruchomić program?
+
+Wszystkie cztery podprogramy może skompiliwać za pomocą komendy "make".
+
+Uruchomienie:
+- podpunkt_a: ./a <numer_sygnału> <tryb_obsługi>
+- podpunkt_b: ./b ./a a <nummer_sygnału> <tryb_obsługi>
+- podpunkt_c: ./c_1 ./c_2 c_2 ./a a <numer_sygnału> <tryb_obsługi> 
+
+===========================================================================
+

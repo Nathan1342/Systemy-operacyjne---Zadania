@@ -1,0 +1,35 @@
+Natan Wojnowski Kraków 29.05.2025
+
+Co robi program?
+
+1. Inicjalizacja:
+   - Zmienna wspólna (globalna): licznik = 0
+   - Muteks: pthread_mutex_t
+   - Tworzenie n wątków
+
+2. Każdy wątek:
+   - Ma swój prywatny licznik
+   - W pętli (np. 5 razy):
+       a) Sekcja prywatna (drukowanie po lewej stronie terminala)
+       b) Wejście do sekcji krytycznej (pthread_mutex_lock)
+		- wyczyszczenie całego wiersza
+		- wypisanie po prawej stronie komunikatu sekjci krytycznej
+		- sleep(1)
+		- inkrementacja licznika globalnego
+       c) Wyjście z sekcji krytycznej (pthread_mutex_unlock)
+		- wyczyszczenie całego wiersza
+		= wypisanie po lewej stronie komunikatu sekcji prywatnej
+       d) Mała przerwa (np. sleep)
+
+3. Po zakończeniu:
+   - Join wszystkich wątków
+   - Sprawdzenie wartości wspólnego licznika
+
+4. Zwolnienie zasobów:
+   - pthread_mutex_destroy
+
+Jak uruchomić program?
+- make - kompilacja
+- make clean - czyszczenie pliku wykonawczego
+- ./a <ilość_wątków> <ilość_sekcji_krytycznych> - uruchomienie
+

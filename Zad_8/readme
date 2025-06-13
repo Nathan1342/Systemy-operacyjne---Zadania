@@ -1,0 +1,40 @@
+Natan Wojnowski Kraków, 29.05.2025
+
+Co robi program?
+
+                 ┌────────────┐
+                 │            │
+                 │   Serwer   │
+                 │            │
+                 └────┬───────┘
+                      │
+          ┌───────────▼─────────────┐
+          │ Kolejka: /kolejka_serwera│◄─────────────┐
+          └─────────────────────────┘              │
+                      ▲                            │
+                      │                            │
+                      │                            │
+            ┌─────────┴─────────┐          ┌───────┴─────────┐
+            │                   │          │                 │
+            │    Klient 1       │          │    Klient 2     │
+            │   PID: 12345      │          │   PID: 12346     │
+            └─────────┬─────────┘          └─────────┬────────┘
+                      │                              │
+          Kolejka: /12345                  Kolejka: /12346
+                      ▲                              ▲
+                      │                              │
+          Serwer wysyła odpowiedź       Serwer wysyła odpowiedź
+
+
+1. Serwer tworzy główną kolejkę komunikatów
+2. Klienci tworzą swoje własne unikalne kolejki
+3. Klieci podpinają się pod kolejkę serwera i wysyłają wiadomości
+4. Serwer działa w trybie demona i odbiera wiadomości
+5. Dla pojedynczego klienta: serwer parsuje jego identyfikator oraz działanie 
+6. Serwer wykonuje działanie, podpina się do kolejki klienta i odsyła 
+7. Klient odbiera wynik z własnej kolejki
+
+Jak uruchomić program?
+- make - kompilacja plików kodów źródłowych
+- make run - uruchomienie programu
+- make clean - wyczyszczenie plików wykonawczych

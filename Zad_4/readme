@@ -1,0 +1,35 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 05.04.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Co robi program?
+
+Program wywołuje proces potomny za pomocą funkcji fork(). Proces potomny 
+jest konsumentem, natomiast proces macierzysty producentem. 
+Producent otwiera plik do odczytu danych, a następnie odczytuje stopniowo
+dane, tym samym wrzucając je do bufora potoku nienazwanego, dopóki nie 
+zostaną w pełni zczytane. Konsument ma rolę odwrotną. Odbiera dane z 
+bufora potoku, także w określonych małych batch'ach danych, następnie
+zapisując je pliku wyjściowym. 
+
+Podczas wykonywanych przez procesy akcji, program na bieżąco je pokazuje.
+Dzięki temu jesteśmy w stanie stwierdzić czy wszystko zachodzi poprawnie 
+oraz czy producent/konsument nie jest za wolny/szybki względem drugiego. 
+
+Wszystko zależy od czasu funkcji sleep() jaki zostanie ustawiony, bo to on
+określa działanie. Jeśli wartość bezwzględna różnicy będzię znacząca, 
+strona o krótszym opóźnieniu będzie wykonywała o wiele więcej akcji, niż
+strona przeciwna. Dlatego czas musi być w miarę podobny, dopiero wtedy
+procesy będą działały w miarę naprzemiennie. 
+
+Jak uruchomić program?
+
+Aby skompilować: 'make'
+Aby uruchomić: 'make run'
+Aby wyczyścić: 'make clean'
+Aby sprawdzić identyczność: 'make check'
+
+===========================================================================

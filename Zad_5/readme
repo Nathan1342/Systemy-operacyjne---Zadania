@@ -1,0 +1,52 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 06.04.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Co robi program?
+
+Program main_5_a.c odpowiada za podpunkt a) zadania 5. Program w gruncie 
+rzeczy tworzy potok nazwany, a potem tworzy dwa procesy potomne, gdzie
+każdy z nich uruchamia inny program. Pierwszy proces potomny uruchamia
+podprogram konsument.c, który jak sama nazwa wskazuje wypełnia role
+konsumenta. Analogiczne zachodzi to dla drugie procesu potomnego i
+programu producent.c. 
+Producent pobiera dane w określonych ilościach i co określony czas
+z pliku wejściowego, a następnie wpisuje je do potoku. 
+Konsument je odbiera i przepisuje do pliku wyjściowego. 
+Działanie zachodzi do momentu użycia całego dostępnego surowca.
+
+W programie jest umieszczona funkcjonalność usuwania potoku automatycznie
+po zakończeniu programu sukcesem lub błędem. 
+
+Istnieje także obsługa signału SIGINT, czyli przerwania działania
+programu z klawiatury. W takiej sytuacji potok również jest usuwany.
+
+Programy konsument.c i producent.c, oprócz przyjmowania odpowiednio
+pliku wyjściowego i pliku wejściowego, na rzecz podpunktu b) posiadają
+także argument  trybu obsługi.
+
+W podpunkcie mamy uruchomić obydwa programu funkcją xterm. Dwoma jedynymi 
+różnicami w porównaniu z podpunktem a) jest odpalenie programów dla dwóch
+niepowiązanych procesów oraz podanie im jako agument potoku stworzonego
+z poziomu powłoki. Poza tym funkcjonalność nie różni się od poprzedniego
+podpunktu, dlatego występują argumenty obsługi trybu.
+
+Dla arguemntu trybu obsługi równego '1', programy działają normalnie, 
+otwierając potok za pomocą jego nazwy. Natomiast dla argumentu '2', 
+do funkcji open przekazują argument przekazany komendą wypisaną w powłoce.
+
+
+Jak uruchomić program?
+
+Aby skompilować: 'make'
+Aby uruchomić podpunkt a): 'make run_a'
+Aby uruchomić podpunkt b): 'make run_b'
+Aby wyczyścić: 'make clean'
+Aby usunąć potok: 'make clean_pipe'
+Aby sprawdzić identyczność: 'make check'
+
+===========================================================================
+

@@ -1,0 +1,26 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 31.03.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Co robi program?
+Program execlp wykonuje trzy razy funkcję fork(), za każdym razem zlecając
+procesowi potomnego wykonanie funkcji execlp, dla programu iden.
+Każdy proces potomny wykonuje jedynie program iden, który wypisuje 
+identyfikatory procesu go wykonującego.
+W głównym programie proces macierzysty po wykonaniu funkcji fork(), czeka
+na zakończenie procesów potomnych (3x funkcja wait()), a następnie
+wypisuje swoje własne identyfikatory.
+
+Funkcja execlp przymuje argv[1] - ścieżkę do pliku iden, przekazaną w
+makefile oraz argv[2] - nazwę pliku iden.  
+
+Jak uruchomić program?
+Aby uruchomić program wystarczy wpisać komendę "make", która skompiluje 
+obydwa pliki źródłowe (execlp.c oraz iden.c). Następnie wpisać komendę
+"make run", która uruchomi program od razu podając mu odpowiednie argumenty. 
+
+===========================================================================
+
