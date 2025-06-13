@@ -1,0 +1,55 @@
+============================================================================
+Autor: Natan Wojnowski,                                   Krakow, 27.03.2025
+============================================================================
+
+* Zawartosc:
+============
+
+Katalog Zad_1 zawiera: 
+- ten plik readme
+- plik makefile obsługujący procesy.c
+- kod źródłowy procesy.c
+
+Co robi program?
+Program na podstawie wejścia pobieranego od użytkownika ( w postaci char'a
+odpowiadającego literze przypisanej konkretnego podpunktowi zadania) 
+uruchamia konkretny podpunkt zadania.
+Dla podpunktu:
+a) - program wypisuje identyifkatory bieżącego procesu
+b) - wywołuje funkcję fork trzykrotnie. Za każdą iteracją pętli proces 
+potomny wypisuje swoje identyfikatory i od razu wywołuje swoje zakończenie.
+Następnie proces macierzysty za pomocą funkcji wait() czeka na zakończenie
+każdego z procesów potomnych wywołanych w pętli z fork().
+c) - wariant podpunktu b), gdzie zamiast użytkowania funkcji wait(), 
+zastępujemy ją przez sleep() i mamy na celu osierocenie procesów potomnych
+tworzonych w pętli z fork().
+d) - wariant podpunktu b), gdzie wypisujemy procesy pokoleniowo od 
+najstarszego (procesu macierzystego) do najmłodszego (trzy procesy potomne).
+Wynik programu dla d):
+Proces macierzysty (przodek) UID: 31450, GID: 10000, PID: 18518, PPID: 2248, PGID: 18518
+Proces potomny UID: 31450, GID: 10000, PID: 18527, PPID: 18518, PGID: 18518
+Proces potomny UID: 31450, GID: 10000, PID: 18528, PPID: 18518, PGID: 18518
+Proces potomny UID: 31450, GID: 10000, PID: 18529, PPID: 18518, PGID: 18518
+Jak widać, proces macierzysty posiada trzech przodków. Wyłaniają się dwa
+pokolenia. Proces macierzysty kończy się na samym końcu, tak aby procesy
+potomne nie były osierocone. 
+e) - wariant podpunktu b), gdzie używamy funkcji setpgid, aby każdy proces
+potomny ustawić jako lidera swojej własnej grupy.
+
+Ile procesów powstanie przy n-krotnym wywołaniu funkcji fork i dlaczego?
+To zależy od tego, czy będziemy także w funkcji fork od razu zamykać 
+procesy potomne. Jeśli tak to będzie ich n. Natomiast jeśli nie, to będzie 
+ich 2^n.
+Pierwsza iteracja: 1 proces.
+Drugi iteracja: 2 procesy.
+Trzecia iteracja: 4 procesy.
+Czwarta iteracja: 8 procesów.
+
+Jak uruchomić program?
+1. Wpisać w terminal komendę make, która uruchomi kompilację poprzez 
+makefile, dzięki czemu otrzymamy plik wykonawczy 'procesy'.
+2. Wpisać w terminal ./procesy. Program się uruchomi.
+
+3*. Do czyszczenia pliku wykonawczego można użyć make clean.
+===========================================================================
+
