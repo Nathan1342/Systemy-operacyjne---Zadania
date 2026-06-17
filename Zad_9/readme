@@ -1,35 +1,54 @@
-Natan Wojnowski Kraków 29.05.2025
+============================================================================
+Author: Natan Wojnowski                                   Kraków, 29.05.2025
+============================================================================
 
-Co robi program?
+* Contents:
+============
 
-1. Inicjalizacja:
-   - Zmienna wspólna (globalna): licznik = 0
-   - Muteks: pthread_mutex_t
-   - Tworzenie n wątków
+* What does the program do?
+===========================
 
-2. Każdy wątek:
-   - Ma swój prywatny licznik
-   - W pętli (np. 5 razy):
-       a) Sekcja prywatna (drukowanie po lewej stronie terminala)
-       b) Wejście do sekcji krytycznej (pthread_mutex_lock)
-		- wyczyszczenie całego wiersza
-		- wypisanie po prawej stronie komunikatu sekjci krytycznej
-		- sleep(1)
-		- inkrementacja licznika globalnego
-       c) Wyjście z sekcji krytycznej (pthread_mutex_unlock)
-		- wyczyszczenie całego wiersza
-		= wypisanie po lewej stronie komunikatu sekcji prywatnej
-       d) Mała przerwa (np. sleep)
+1. Initialization:
+   - Shared global variable: counter = 0
+   - Mutex: pthread_mutex_t
+   - Creation of n threads
 
-3. Po zakończeniu:
-   - Join wszystkich wątków
-   - Sprawdzenie wartości wspólnego licznika
+2. Each thread:
+   - Has its own private counter
+   - Executes a loop (e.g., 5 iterations):
 
-4. Zwolnienie zasobów:
+     a) Private section (prints on the left side of the terminal)
+
+     b) Critical section (pthread_mutex_lock):
+        - clears the entire line
+        - prints a critical section message on the right side
+        - sleep(1)
+        - increments the global counter
+
+     c) Exit from critical section (pthread_mutex_unlock):
+        - clears the entire line
+        - prints a private section message on the left side
+
+     d) Small pause (e.g., sleep)
+
+3. After execution:
+   - Join all threads
+   - Verify the final value of the shared counter
+
+4. Resource cleanup:
    - pthread_mutex_destroy
 
-Jak uruchomić program?
-- make - kompilacja
-- make clean - czyszczenie pliku wykonawczego
-- ./a <ilość_wątków> <ilość_sekcji_krytycznych> - uruchomienie
+---
 
+* How to run the program:
+=========================
+
+- make
+  → compile the program
+
+- make clean
+  → remove compiled binaries
+
+- ./a <number_of_threads> <number_of_critical_sections>
+  → run the program
+============================================================================
