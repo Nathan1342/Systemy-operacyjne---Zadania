@@ -1,38 +1,66 @@
 ============================================================================
-Autor: Natan Wojnowski,                                   Krakow, 05.04.2025
+============================================================================
+Author: Natan Wojnowski                                   Krakow, 05.04.2025
 ============================================================================
 
-* Zawartosc:
+* Contents:
 ============
 
-Co robi program?
+* What does the program do?
+===========================
 
-W podpunkcie a) mamy stworzony problem wykluczenia. Program tworzy semafor
-i proces potomny, symulując dzielenia zasobów. Aby działanie było dobrze
-zauważalne zarówno proces macierzysty jak i potomny wchodzą do sekcji
-krytycznej kilkukrotnie poprzez funkcję for(). Dzięki odpowiednim 
-komunikatom widzimy kiedy, jaki proces wchodzi i wychodzi z sekcji
-krytycznej. 
-Program używa semafora binarnego.
+Part (a) implements a mutual exclusion problem using a binary semaphore.
 
-W podpunkcie b) mamy główny program, który tworzy semafor binarny, a potem
-tworzy n procesów potomnych (gdzie n jest podawane jako argument 
-uruchomienia programu). Każdy z tych procesów chce dostać się do pliku
-tekstowego numer.txt m razy (gdzie m jest podawane jako argument 
-uruchomienia programu). Liczby m i n to dowolne podane przez użytkownika
-liczby całkowite dodatnie. Za każdym razem kiedy którykolwiek z 
-procesów dostaje się do sekcji krytycznej otwiera i pobiera z pliku
-tekstowego liczbę, inkrementuje ją o 1 i następnie zapisuje z powrotem
-do pliku. To działanie pokazuje problem dzielonych zasobów w praktyce
-oraz dodatkowo sprawdza czy ilość wejść do strefy krytycznej (czyli n*m)
-się zgadza. 
-Program dodatkowo obsługuje sygnał SIGINT. 
+The program creates a semaphore and a child process to simulate shared
+resource access.
 
-Jak uruchomić program?
+Both the parent and child processes enter a critical section multiple times
+(using a loop). This repetition makes the behavior clearly observable.
 
-Aby skompilować: 'make'
-Aby uruchomić podpunkt a: 'make run_a'
-Aby uruchomić podpunkt b: 'make run_b'
-Aby wyczyścić: 'make clean'
+The program prints messages indicating when each process enters and exits
+the critical section, allowing verification of correct synchronization.
 
-===========================================================================
+---
+
+Part (b) implements a more general case of the same problem.
+
+The main program:
+- creates a binary semaphore
+- spawns n child processes (n provided as a command-line argument)
+
+Each process accesses a shared file (numer.txt) m times (m also provided
+as an argument).
+
+Each access to the critical section performs the following operations:
+- opens the file
+- reads a number from it
+- increments the value by 1
+- writes it back to the file
+
+This demonstrates the shared resource problem and the need for
+synchronization.
+
+At the end, the program verifies whether the final value in the file
+matches the expected result (n * m).
+
+---
+
+The program also handles the SIGINT signal (Ctrl+C) to ensure proper cleanup.
+
+---
+
+* How to run the program:
+=========================
+
+To compile:
+make
+
+To run part (a):
+make run_a
+
+To run part (b):
+make run_b
+
+To clean build files:
+make clean
+============================================================================
