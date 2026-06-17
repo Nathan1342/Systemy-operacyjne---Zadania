@@ -1,26 +1,39 @@
 ============================================================================
-Autor: Natan Wojnowski,                                   Krakow, 31.03.2025
+Author: Natan Wojnowski                                   Krakow, 31.03.2025
 ============================================================================
 
-* Zawartosc:
+* Contents:
 ============
 
-Co robi program?
-Program execlp wykonuje trzy razy funkcję fork(), za każdym razem zlecając
-procesowi potomnego wykonanie funkcji execlp, dla programu iden.
-Każdy proces potomny wykonuje jedynie program iden, który wypisuje 
-identyfikatory procesu go wykonującego.
-W głównym programie proces macierzysty po wykonaniu funkcji fork(), czeka
-na zakończenie procesów potomnych (3x funkcja wait()), a następnie
-wypisuje swoje własne identyfikatory.
+* What does the program do?
+============================
 
-Funkcja execlp przymuje argv[1] - ścieżkę do pliku iden, przekazaną w
-makefile oraz argv[2] - nazwę pliku iden.  
+The program demonstrates the use of fork() together with execlp().
 
-Jak uruchomić program?
-Aby uruchomić program wystarczy wpisać komendę "make", która skompiluje 
-obydwa pliki źródłowe (execlp.c oraz iden.c). Następnie wpisać komendę
-"make run", która uruchomi program od razu podając mu odpowiednie argumenty. 
+The main program calls fork() three times. Each time, the child process
+is replaced using execlp() with an external program called "iden".
 
-===========================================================================
+Each child process executes only the "iden" program, which prints the
+identifiers of the process that executes it (UID, GID, PID, PPID, PGID).
 
+In the main program, the parent process waits for all child processes
+to finish using three calls to wait(). After all children terminate,
+the parent process prints its own process identifiers.
+
+The execlp() function uses:
+- argv[1]: path to the "iden" executable (provided via Makefile)
+- argv[2]: name of the "iden" program
+
+* How to run the program:
+=========================
+
+1. Compile the project:
+   make
+
+   This compiles both source files (execlp.c and iden.c).
+
+2. Run the program:
+   make run
+
+   This executes the program and passes the required arguments automatically.
+============================================================================
