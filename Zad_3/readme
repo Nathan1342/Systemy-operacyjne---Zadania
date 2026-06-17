@@ -1,66 +1,103 @@
 ============================================================================
-Autor: Natan Wojnowski,                                   Krakow, 27.03.2025
+Author: Natan Wojnowski                                   Krakow, 27.03.2025
 ============================================================================
 
-* Zawartosc:
+* Contents:
 ============
 
-Co robi program?
+* What does the program do?
+===========================
 
-PODPUNKT_A - pogram jako argumenty pobiera <numer_sygnału> oraz <tryb_obsługi>.
-Następnie dla podanego przez argument numeru sygnału oraz trybu obsługi 
-określa działanie dla tego konkretnego sygnału (akcja domyślna, ignorowanie 
-lub przechwycenie sygnału). Następnie przechodzi w stan zamrożenia przez
-funkcję pause() i oczekuje na sygnał.
+PODPOINT_A
+------------
 
-PODPUNKT_B - program tworzy poprzez funkcję fork() proces potomny oraz
-zleca mu wykonanie programu PODPUNKT_A poprzez funkcję execlp().
-Sama funkcja execlp() przyjmuje jako arg[0] ścieżkę do pliku 
-wykonywalnego programu PODPUNKT_A oraz jego nazwę w arg[1].
-W arg[2] oraz arg[3] pojawiają się <numer_sygnału> oraz <tryb_obsługi>
-wspomniane powyżej. Proces potomny ustawia obsługę podanego sygnału, a 
-następnie wchodzi w stań oczekiwania przez funkcję pause().
-Po odpowiednim czasie funkcji sleep() proces macierzysty wysyła funkcją
-kill() ten sam sygnał do procesu potomnego, natomiast tamten odpowiednio
-reaguje.
+The program takes two command-line arguments:
+- <signal_number>
+- <handling_mode>
 
-PODPUNKT_C_1 oraz PODPUNKT_C_2 - program wywołuje proces potomny i zleca
-mu wykonanie programu PODPUNKT_C_2, gdzie ten tworzy trzy procesy potomne.
-Cały program opiera się o poprawne sekwencjonowanie działania sygnałów
-poprzez funkcję sleep(). Bardziej dokładną i zarazem błędoodporną opcją
-byłoby użycie także sygnałów do odpowiedniej kontroli działania sygnałów.
-Chociaż na potrzeby ćwiczenia funkcja sleep jest wystarczająca. 
+Based on the provided signal number and handling mode, the program configures
+the signal behavior as follows:
+- default action
+- ignore signal
+- custom signal handler
 
-Całe działanie obu programów można byłoby zapisać na swego rodzaju
-kalendarzu wydarzeń, gdzie proces nr 1 to proces macierzysty programu
-PODPUNKT_C_1 oraz proces nr 2 to procec potomny procesu nr 1.
+After configuration, the process enters a blocked state using pause()
+and waits for a signal.
 
-1. Uruchomienie programu PODPUNKT_C_1
-2. Proces nr 1 tworzy proces nr 2 
-3. Proces nr 1 wchodzi w tryb uśpienia
-4. Proces nr 2 uruchamia program PODPUNKT_C_2
-5. Proces nr 2 ustawia się na lidera grupy
-6. Proces nr 2 ustawia obsługę sygnału
-7. Proces nr 2 tworzy trzy procesy potomne
-8. Proces nr 2 wchodzi w tryb oczekiwania przez wait()
-9. Procesy potomne uruchamiają i wykonują program PODPUNKT_A
-10. Proces nr 1 wychodzi z uśpienia i wysyła kill()
-11. Cała grupa procesów z liderem proces nr 2 odbiera sygnał
-12. Proces nr 2 ignoruje sygnał, procesy potomne zakończają się
-13. Proces nr 2 określa zakończenie procesów potomnych
-14. Proces nr 2 zakończa się
-15. Proces nr 1 określa zakończenie procesu nr 2
-16. Proces nr 1 zakończa się
+---
 
+PODPOINT_B
+------------
 
-Jak uruchomić program?
+The program creates a child process using fork() and then replaces it
+with another program using execlp() (PODPOINT_A).
 
-Wszystkie cztery podprogramy może skompiliwać za pomocą komendy "make".
+The execlp() function receives:
+- argv[0]: path to the executable of PODPOINT_A
+- argv[1]: program name
+- argv[2]: signal number
+- argv[3]: signal handling mode
 
-Uruchomienie:
-- podpunkt_a: ./a <numer_sygnału> <tryb_obsługi>
-- podpunkt_b: ./b ./a a <nummer_sygnału> <tryb_obsługi>
-- podpunkt_c: ./c_1 ./c_2 c_2 ./a a <numer_sygnału> <tryb_obsługi> 
+After launching the child process, the parent process waits (sleep)
+and then sends a signal to the child process using kill().
 
-===========================================================================
+The child process reacts according to the configured signal handling mode.
 
+---
+
+PODPOINT_C_1 and PODPOINT_C_2
+------------------------------
+
+The program creates a child process and executes PODPOINT_C_2.
+
+PODPOINT_C_2:
+- creates three child processes using fork()
+- sets itself as a process group leader
+- configures signal handling
+- uses sleep() for timing coordination
+
+The execution flow relies on carefully controlled timing between processes.
+Although signal-based synchronization would be more robust, sleep()
+is sufficient for the purpose of this exercise.
+
+---
+
+Execution timeline (conceptual model):
+
+1. PODPOINT_C_1 starts
+2. Process 1 creates Process 2
+3. Process 1 enters sleep state
+4. Process 2 runs PODPOINT_C_2
+5. Process 2 becomes process group leader
+6. Process 2 sets signal handling
+7. Process 2 creates three child processes
+8. Process 2 waits for children (wait)
+9. Child processes execute PODPOINT_A
+10. Process 1 wakes up and sends a signal (kill)
+11. Entire process group receives the signal
+12. Process 2 ignores signal, children terminate
+13. Process 2 collects child termination statuses
+14. Process 2 terminates
+15. Process 1 collects Process 2 status
+16. Process 1 terminates
+
+---
+
+* How to run the program:
+=========================
+
+All four subprograms can be compiled using:
+
+make
+
+Execution:
+
+- PODPOINT_A:
+  ./a <signal_number> <handling_mode>
+
+- PODPOINT_B:
+  ./b ./a a <signal_number> <handling_mode>
+
+- PODPOINT_C:
+  ./c_1 ./c_2 c_2 ./a a <signal_number> <handling_mode>
+============================================================================
