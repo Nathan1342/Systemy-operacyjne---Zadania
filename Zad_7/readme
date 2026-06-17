@@ -1,95 +1,167 @@
-Natan Wojnowski, Kraków 22.05.2025
+============================================================================
+Author: Natan Wojnowski                                   Kraków, 22.05.2025
+============================================================================
 
-Co robi program?
+* Contents:
+============
 
-Struktura programu:
-Proces main
-- stworzenie struktury bufora
-- utworzenie pamięci dzielonej
-	- wypisanie jej deskryptora i rozmiaru
-- utworzenie semafora binarnego mutex, semafora empty oraz full
-	- wypisanie ich adresów
-- ustawienie obsługi SIGINT
-	- odłączenie sema i pamdziel od procesów potomych 
-	- zakończenie procesów potomnych
-	- usuniecie sema i pamdziel z głównym
-- ustawienie atexit 
-	- usuwanie semafora i pamieci dzielonej
-- stworzenie dwóch procesów potomnych 
-	1) execlp konsument.c
-	2) execlp producent.c
-- czeka na zakończenie procesów potomnych
-Proces konsument
-- otworzenie semafora
-- otworzenie pamięci dzielonej
-- wypisanie deskrryptora pamdziel oraz adresów sema
-- odwzorowanie pamdziel
-Proces producent
-- otworzenie semafora
-- otworzenie pamięcie dzielonej
--||-
--||-
--||-
-Proces main
-- usunięcie semafora
-- usunięcie pamięci dzielonej
+* What does the program do?
+===========================
 
-I teraz jeszcze główne działanie producenta:
-1. Pobierz dane z pliku wejściowego
-2. Spróbuj opuścić semafor sem_full (dostępność wolnych miejsc w buforze)
-3. Spróbuj opuścić semafor sem_mutex (dostępność do bufora)
-4. Przepisz dane do segmentu bufora
-5. Podnieś oba semafory
-6. Ziteruj wskaźnik
-Jeśli dostaniesz '/0' wpisz to do segmentu i zakończ pętlę
+Program structure:
 
-Oraz działanie konsumenta:
-1. Spróbuj opuścić semafor sem_empty (czy jest cokolwiek do odczytu?)
-2. Spróbuj opuścić semafor sem_mutex (dostępność do bufora)
-3. Odzcytaj dane z segmentu bufora
-4. Podnieś semafory
-5. Przepisz dane do pliku wyjściowego
-6. Ziteruj wskaźnik
-Jeśli dostaniesz '/0', zakończ pętlę
+Main process:
+- creation of a shared buffer structure
+- creation of shared memory segment
+  - prints its descriptor and size
+- creation of POSIX semaphores:
+  - mutex (binary semaphore)
+  - empty semaphore
+  - full semaphore
+  - prints their addresses
+- setup of SIGINT handler:
+  - detaches semaphores and shared memory from child processes
+  - terminates child processes
+  - removes semaphores and shared memory in the parent process
+- setup of atexit handler:
+  - cleanup of semaphores and shared memory
+- creation of two child processes:
+  1) executes consumer.c via execlp()
+  2) executes producer.c via execlp()
+- waits for both child processes to finish
 
-Głównym mechanizmem synchronizującym są semafory. To one odpowiadają za to żeby
-producent nie napisywał jeszcze nieodczytanych segmentów oraz aby konsument nie odczytywał
-już wcześniej odczytanych lub pustych segmentów, ale także o efekt wyścigu pomiędzy dwoma. 
+---
 
-Przy moich liczbach moja pamięć dzielona to pięciu segmentowy bufor, gdzie każdy segment
-posiada 20 bajtów przestrzeni. Finalnie cała pamięć dzielona po utworzeniu wynosi 108 bajtów. 
-Wychodzi tak ze względu na dwie zmienne int w strukturze, które odpowiadają za wskaźniki. 
-One dodają te 8 bajtów, każda po 4. 
+Consumer process:
+- opens semaphores
+- opens shared memory segment
+- prints descriptors and semaphore addresses
+- maps shared memory into its address space
 
-RPATH to wbudowana w binarkę lista ścieżek, pokazuje loaderowi dokładnie gdzie szukać:
-pliku lub bilioteki. To jest dokładna mapa mówiąca gdzie szukać. 
+Producer process:
+- opens semaphores
+- opens shared memory segment
+- maps shared memory into its address space
 
-Natomiast LD_LIBRARY_PATH to zmienna środowiskowa ustawiana przed uruchomiem.
-Ta zmienna to swojego rodzaju drogowskaz do sprawdzenia czy biblioteki może są w 
-podanym miejscu. 
+---
 
-Różnica pomiędzy nimi jest taka, że RPATH jest na stałe zapisany w pliku wykonalnym.
-Więc jeśli przeniesiemy gdzieś indziej naszą bibliotekę to musimy na nowo prezlinkować binarkę.
-Natomiast LD_LIBRARY_PATH to zmienna środowiskowa. Nie jest zależna od konkretnego
-pliku wykonywawczego, ale drogowskaz, które każdy loader będzie używał.
+Main process (final cleanup):
+- removes semaphores
+- removes shared memory segment
 
-W przypadku biblioteki dzielonej, program nie zawiera kodu .so na stałe, tak jak w przypadku
-użycia biblioteki statycznej, a jedynie trzyma nagłówki i adresy, gdzie dana funckja się
-znajduje w pamięci. 
-Program pozostaje niewielki, bo wciąga kod biblioteki dopiero w momencie uruchomienia.
+---
 
-Statyczna (nieproszone wyjaśnienie skrótowo): jesteś kurierem, który wkłada wszystkie
-paczki (kod) do samochodu na start.
+* Producer logic:
+=================
 
-Dynamiczna: zamiast załadowywać wszystko, masz listę adresów, skąd możesz pobrać paczki w
-locie – mniejszy samochód, niższe koszty, więcej elastyczności.
+1. Read data from input file
+2. Wait on sem_full semaphore (available space in buffer)
+3. Wait on sem_mutex (critical section access)
+4. Write data into shared buffer
+5. Signal sem_mutex and sem_empty
+6. Move buffer pointer forward
 
-Kompilator tłumaczy pliki źródłowe na pliki obiektowe, czyli język maszynowy.
-Natomiast linker łączy wszystkie pliki obiektowe i biblioteki razem.
-Jak uruchomić program?
-make run_static - uruchomienie i skompilowanie z biblioteką statyczną
-make run_dynamic_1 - uruchomienie i skompilowanie z biblioteką dzieloną sposobem RPATH
-make run_dynamic_2 - uruchomienie i skompilowanie z bilbioteką dzieloną sposobem LD_LIBRARY_PATH
-make static - kompilacja programów z biblioteką statyczną
-make dynamic_1 - kompilacja programów z biblioteką dynamiczną sposobem RPATH
-make dynamic_2 - kompilacja programów z biblioteką dynamiczną sposobem LD_LIBRARY_PATH
+If '/0' is read, it is written into the buffer and the loop ends.
+
+---
+
+* Consumer logic:
+=================
+
+1. Wait on sem_empty (check if data is available)
+2. Wait on sem_mutex (critical section access)
+3. Read data from shared buffer
+4. Signal sem_mutex and sem_full
+5. Write data to output file
+6. Move buffer pointer forward
+
+If '/0' is received, the loop terminates.
+
+---
+
+* Synchronization mechanism:
+============================
+
+The main synchronization mechanism is based on semaphores:
+
+- prevents producer from overwriting unread data
+- prevents consumer from reading empty or already consumed data
+- eliminates race conditions between processes
+
+---
+
+* Shared memory configuration:
+==============================
+
+In this implementation:
+- buffer size: 5 elements
+- each element: 20 bytes
+- total shared memory size: 108 bytes
+
+The size includes additional integer variables used as buffer indices
+(4 bytes each), which contribute to the total memory size.
+
+---
+
+* RPATH vs LD_LIBRARY_PATH:
+===========================
+
+RPATH:
+- embedded directly into the executable
+- acts as a fixed search path for libraries
+- requires recompilation if library location changes
+
+LD_LIBRARY_PATH:
+- environment variable set at runtime
+- provides flexible library lookup path
+- does not require recompilation
+
+---
+
+* Static vs dynamic libraries (simplified explanation):
+======================================================
+
+Static library:
+- all code is embedded into the executable at compile time
+- result: larger binary
+
+Dynamic library:
+- executable contains only references (not full code)
+- libraries are loaded at runtime
+- result: smaller binary and more flexibility
+
+Analogy:
+- static: everything packed into a car at the start
+- dynamic: you carry only addresses and fetch packages when needed
+
+---
+
+* Compilation process:
+======================
+
+- Compiler converts source files into object files (machine code)
+- Linker combines object files and libraries into final executable
+
+---
+
+* How to run the program:
+=========================
+
+make run_static
+  - compile and run with static library
+
+make run_dynamic_1
+  - compile and run using shared library via RPATH
+
+make run_dynamic_2
+  - compile and run using LD_LIBRARY_PATH
+
+make static
+  - compile with static library
+
+make dynamic_1
+  - compile with shared library (RPATH)
+
+make dynamic_2
+  - compile with shared library (LD_LIBRARY_PATH)
+============================================================================
