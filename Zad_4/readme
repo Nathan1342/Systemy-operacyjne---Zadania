@@ -1,35 +1,47 @@
 ============================================================================
-Autor: Natan Wojnowski,                                   Krakow, 05.04.2025
+Author: Natan Wojnowski                                   Krakow, 05.04.2025
 ============================================================================
 
-* Zawartosc:
+* Contents:
 ============
 
-Co robi program?
+* What does the program do?
+===========================
 
-Program wywołuje proces potomny za pomocą funkcji fork(). Proces potomny 
-jest konsumentem, natomiast proces macierzysty producentem. 
-Producent otwiera plik do odczytu danych, a następnie odczytuje stopniowo
-dane, tym samym wrzucając je do bufora potoku nienazwanego, dopóki nie 
-zostaną w pełni zczytane. Konsument ma rolę odwrotną. Odbiera dane z 
-bufora potoku, także w określonych małych batch'ach danych, następnie
-zapisując je pliku wyjściowym. 
+The program creates a child process using fork().
 
-Podczas wykonywanych przez procesy akcji, program na bieżąco je pokazuje.
-Dzięki temu jesteśmy w stanie stwierdzić czy wszystko zachodzi poprawnie 
-oraz czy producent/konsument nie jest za wolny/szybki względem drugiego. 
+The child process acts as the consumer, while the parent process acts as the producer.
 
-Wszystko zależy od czasu funkcji sleep() jaki zostanie ustawiony, bo to on
-określa działanie. Jeśli wartość bezwzględna różnicy będzię znacząca, 
-strona o krótszym opóźnieniu będzie wykonywała o wiele więcej akcji, niż
-strona przeciwna. Dlatego czas musi być w miarę podobny, dopiero wtedy
-procesy będą działały w miarę naprzemiennie. 
+The producer opens an input file and reads its contents in chunks.
+These chunks are then written into an unnamed pipe buffer until all data
+has been processed.
 
-Jak uruchomić program?
+The consumer reads data from the pipe buffer in smaller batches and writes
+it to an output file.
 
-Aby skompilować: 'make'
-Aby uruchomić: 'make run'
-Aby wyczyścić: 'make clean'
-Aby sprawdzić identyczność: 'make check'
+During execution, both processes print messages to the console to show
+their current actions. This allows verification of correct behavior and
+helps observe the synchronization between producer and consumer.
 
-===========================================================================
+The execution speed of both processes depends on the sleep() delays.
+If one process is significantly faster, it will dominate execution and
+produce more actions than the other. Therefore, similar sleep durations
+are required to achieve balanced, alternating execution.
+
+---
+
+* How to run the program:
+=========================
+
+To compile:
+make
+
+To run:
+make run
+
+To clean build files:
+make clean
+
+To check file equality:
+make check
+============================================================================
