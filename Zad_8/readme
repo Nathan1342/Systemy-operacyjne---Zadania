@@ -1,40 +1,51 @@
-Natan Wojnowski Kraków, 29.05.2025
+============================================================================
+Author: Natan Wojnowski                                   Kraków, 29.05.2025
+============================================================================
 
-Co robi program?
+* Contents:
+============
 
-                 ┌────────────┐
-                 │            │
-                 │   Serwer   │
-                 │            │
-                 └────┬───────┘
-                      │
-          ┌───────────▼─────────────┐
-          │ Kolejka: /kolejka_serwera│◄─────────────┐
-          └─────────────────────────┘              │
-                      ▲                            │
-                      │                            │
-                      │                            │
-            ┌─────────┴─────────┐          ┌───────┴─────────┐
-            │                   │          │                 │
-            │    Klient 1       │          │    Klient 2     │
-            │   PID: 12345      │          │   PID: 12346     │
-            └─────────┬─────────┘          └─────────┬────────┘
-                      │                              │
-          Kolejka: /12345                  Kolejka: /12346
-                      ▲                              ▲
-                      │                              │
-          Serwer wysyła odpowiedź       Serwer wysyła odpowiedź
+* What does the program do?
+===========================
+
+                         ┌────────────┐
+                         │            │
+                         │  Server    │
+                         │            │
+                         └────┬───────┘
+                              │
+          ┌────────────────────▼───────────────────┐
+          │ Message Queue: /server_queue            │◄─────────────┐
+          └─────────────────────────────────────────┘              │
+                              ▲                                    │
+                              │                                    │
+          ┌────────────────────┴────────────┐        ┌─────────────┴────────────┐
+          │                                 │        │                          │
+          │         Client 1                │        │        Client 2          │
+          │        PID: 12345              │        │       PID: 12346         │
+          └──────────────┬─────────────────┘        └──────────────┬───────────┘
+                         │                                           │
+           Queue: /12345                                   Queue: /12346
+                         ▲                                           ▲
+                         │                                           │
+              Server sends response                      Server sends response
 
 
-1. Serwer tworzy główną kolejkę komunikatów
-2. Klienci tworzą swoje własne unikalne kolejki
-3. Klieci podpinają się pod kolejkę serwera i wysyłają wiadomości
-4. Serwer działa w trybie demona i odbiera wiadomości
-5. Dla pojedynczego klienta: serwer parsuje jego identyfikator oraz działanie 
-6. Serwer wykonuje działanie, podpina się do kolejki klienta i odsyła 
-7. Klient odbiera wynik z własnej kolejki
+1. The server creates the main message queue.
+2. Clients create their own unique message queues.
+3. Clients connect to the server queue and send requests.
+4. The server runs as a daemon and continuously receives messages.
+5. For each client request, the server extracts the PID and the operation.
+6. The server performs the computation, opens the client queue,
+   and sends back the result.
+7. The client receives the response from its own queue.
 
-Jak uruchomić program?
-- make - kompilacja plików kodów źródłowych
-- make run - uruchomienie programu
-- make clean - wyczyszczenie plików wykonawczych
+---
+
+* How to run the program:
+=========================
+
+- make        → compile source files
+- make run    → run the program
+- make clean  → remove compiled files
+============================================================================
