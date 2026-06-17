@@ -1,52 +1,90 @@
 ============================================================================
-Autor: Natan Wojnowski,                                   Krakow, 06.04.2025
+Author: Natan Wojnowski                                   Krakow, 06.04.2025
 ============================================================================
 
-* Zawartosc:
+* Contents:
 ============
 
-Co robi program?
+* What does the program do?
+===========================
 
-Program main_5_a.c odpowiada za podpunkt a) zadania 5. Program w gruncie 
-rzeczy tworzy potok nazwany, a potem tworzy dwa procesy potomne, gdzie
-każdy z nich uruchamia inny program. Pierwszy proces potomny uruchamia
-podprogram konsument.c, który jak sama nazwa wskazuje wypełnia role
-konsumenta. Analogiczne zachodzi to dla drugie procesu potomnego i
-programu producent.c. 
-Producent pobiera dane w określonych ilościach i co określony czas
-z pliku wejściowego, a następnie wpisuje je do potoku. 
-Konsument je odbiera i przepisuje do pliku wyjściowego. 
-Działanie zachodzi do momentu użycia całego dostępnego surowca.
+The program main_5_a.c implements part (a) of Exercise 5.
 
-W programie jest umieszczona funkcjonalność usuwania potoku automatycznie
-po zakończeniu programu sukcesem lub błędem. 
+It creates a named pipe (FIFO) and then spawns two child processes.
+Each child process executes a different program:
 
-Istnieje także obsługa signału SIGINT, czyli przerwania działania
-programu z klawiatury. W takiej sytuacji potok również jest usuwany.
+- The first child runs consumer.c, which acts as the consumer.
+- The second child runs producer.c, which acts as the producer.
 
-Programy konsument.c i producent.c, oprócz przyjmowania odpowiednio
-pliku wyjściowego i pliku wejściowego, na rzecz podpunktu b) posiadają
-także argument  trybu obsługi.
+The producer reads data from an input file in fixed-size chunks and
+writes it to the named pipe at regular intervals.
 
-W podpunkcie mamy uruchomić obydwa programu funkcją xterm. Dwoma jedynymi 
-różnicami w porównaniu z podpunktem a) jest odpalenie programów dla dwóch
-niepowiązanych procesów oraz podanie im jako agument potoku stworzonego
-z poziomu powłoki. Poza tym funkcjonalność nie różni się od poprzedniego
-podpunktu, dlatego występują argumenty obsługi trybu.
+The consumer reads data from the pipe and writes it to an output file.
 
-Dla arguemntu trybu obsługi równego '1', programy działają normalnie, 
-otwierając potok za pomocą jego nazwy. Natomiast dla argumentu '2', 
-do funkcji open przekazują argument przekazany komendą wypisaną w powłoce.
+The process continues until all input data has been consumed.
 
+---
 
-Jak uruchomić program?
+The program includes automatic cleanup of the named pipe after successful
+execution or in case of an error.
 
-Aby skompilować: 'make'
-Aby uruchomić podpunkt a): 'make run_a'
-Aby uruchomić podpunkt b): 'make run_b'
-Aby wyczyścić: 'make clean'
-Aby usunąć potok: 'make clean_pipe'
-Aby sprawdzić identyczność: 'make check'
+It also handles the SIGINT signal (Ctrl+C). In this case, the pipe is
+also properly removed to prevent leftover resources.
 
-===========================================================================
+---
+
+Both consumer.c and producer.c accept:
+- input/output file arguments
+- an additional mode argument used for Exercise 5b
+
+---
+
+* Exercise 5b behavior:
+=======================
+
+In part (b), both programs are executed independently using xterm,
+instead of being created by a parent process.
+
+The main difference compared to part (a) is:
+- processes are not related (independent execution)
+- the named pipe is created externally (from the shell)
+- both programs receive the pipe name as a command-line argument
+
+Aside from that, functionality remains the same.
+
+---
+
+* Mode argument:
+================
+
+- Mode = 1:
+  Programs open the named pipe using its file name.
+
+- Mode = 2:
+  Programs use an alternative file descriptor approach where the pipe
+  is opened using a command-line provided reference.
+
+---
+
+* How to run the program:
+=========================
+
+To compile:
+make
+
+To run part (a):
+make run_a
+
+To run part (b):
+make run_b
+
+To clean build files:
+make clean
+
+To remove the pipe:
+make clean_pipe
+
+To verify correctness:
+make check
+============================================================================
 
