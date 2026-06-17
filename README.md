@@ -1,5 +1,5 @@
 # Systemy-operacyjne---Zadania
-=
+
 Author: Natan Wojnowski
 Location: Kraków, Poland
 =
