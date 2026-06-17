@@ -1,4 +1,4 @@
-# Systemy-operacyjne---Zadania
+## Operating Systems Assignments
 
 Author: Natan Wojnowski
 Location: Kraków, Poland
